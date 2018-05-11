@@ -2,7 +2,7 @@
 
 ## How to Run
 
--   Download ```model``` directory (e.g. to ```C:/python/mip/model/```). Edit ```train.py``` to change the model.
+-   Download ```model``` directory from git (e.g. to ```C:/python/mip/model/```). Edit ```train.py``` to change the model.
 
 -   Install Google Cloud SDK (https://cloud.google.com/sdk/docs/)
 
