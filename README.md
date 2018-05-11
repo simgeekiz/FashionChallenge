@@ -32,6 +32,6 @@
 
 ```-- validation.json``` contains image URLS and label annotiations for validation set
 
-```-- y_train.pickle``` gzip compressed pickle file with one-hot encoded labels (first column is imageId)
+```-- y_train.pickle``` gzip compressed pickle file with one-hot encoded labels (column 0 is imageId, columns 1-229 indicate label presence)
 
-```-- y_validation.pickle``` gzip compressed pickle file with one-hot encoded labels (first column is imageId)
+```-- y_validation.pickle``` gzip compressed pickle file with one-hot encoded labels (column 0 is imageId, columns 1-229 indicate label presence)
