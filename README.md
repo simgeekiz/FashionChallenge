@@ -14,3 +14,15 @@
   
 -   View the list of jobs here: https://console.cloud.google.com/mlengine/jobs?project=mlip-team-mmndpm
 -
+
+## Google Bucket structure
+```gs://mmndpm-europe-west/```
+```- data```
+```-- train``` directory with separate training image (jpg) files
+```-- test``` directory with separate test image (jpg) files
+```-- validation``` directory with separate validation image (jpg) files
+```-- train.json``` contains image URLS and label annotiations for training set
+```-- test.json``` contains image URLS and label annotiations for test set
+```-- validation.json``` contains image URLS and label annotiations for validation set
+```-- y_train.pickle``` gzip compressed pickle file with one-hot encoded labels (first column is imageId)
+```-- y_validation.pickle``` gzip compressed pickle file with one-hot encoded labels (first column is imageId)
