@@ -13,7 +13,7 @@
   ```
   
 -   View the list of jobs here: https://console.cloud.google.com/mlengine/jobs?project=mlip-team-mmndpm
--
+-   <b> Reading and writing files on the google bucket only works with ```file_io``` from ```tensorflow.python.lib.io```</b> 
 
 ## Google Bucket structure
 ```gs://mmndpm-europe-west/```
