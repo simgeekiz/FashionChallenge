@@ -14,6 +14,7 @@
   
 -   View the list of jobs here: https://console.cloud.google.com/mlengine/jobs?project=mlip-team-mmndpm
 -   <b> Reading and writing files on the google bucket only works with ```file_io``` from ```tensorflow.python.lib.io```</b> 
+-   We are using python 2
 
 ## Google Bucket structure
 ```gs://mmndpm-europe-west/```
