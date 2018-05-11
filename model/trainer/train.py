@@ -18,10 +18,10 @@ def load_data(path):
     # Retrieve images
     
     # Load labels
-    with gzip.open(path + '/y_train.pickle','rb') as fp:
+    with gzip.open(path + 'data/y_train.pickle','rb') as fp:
         y_train = cPickle.load(fp)
         
-    with gzip.open(path + '/y_validation.pickle','rb') as fp:
+    with gzip.open(path + 'data/y_validation.pickle','rb') as fp:
         y_validation = cPickle.load(fp)
         
     return y_train, y_validation
@@ -30,12 +30,6 @@ def preprocessing():
     return None
 
 def create_model():
-    """
-    In here you can define your model
-    NOTE: Since we are only saving the model weights, you cannot load model weights that do
-    not have the exact same architecture.
-    :return:
-    """
     model = Sequential()
     model.add(Dense(42, activation='relu'))
     model.add((Dense(6, activation='sigmoid')))
@@ -48,32 +42,9 @@ def create_model():
 
 
 def main(train_file, test_file, job_dir):
-    df = load_data(train_file)
+    y_train, y_validation = load_data(train_file)
 
-    print("test")
-    
-    """
-    X_train, X_validation, y_train, y_validation = train_test_split_pandas(df)
-
-    model = create_model()
-    model.fit(X_train, y_train, nb_epoch=1, batch_size=32, verbose=2)
-    score, accuracy = model.evaluate(X_validation, y_validation)
-    print('Test score:', score)
-    print('Test accuracy:', accuracy)
-
-    X_test = load_data(test_file)
-
-    predictions = model.predict(X_test)
-    # TODO: Kaggle competitions accept different submission formats, so saving the predictions is up to you
-
-    # Save model weights
-    model.save('model.h5')
-
-    # Save model on google storage
-    with file_io.FileIO('model.h5', mode='r') as input_f:
-        with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
-            output_f.write(input_f.read())
-    """
+    print(y_train.shape)
 
 if __name__ == '__main__':
     """
