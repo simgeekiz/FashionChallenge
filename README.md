@@ -13,3 +13,4 @@
   ```
   
 -   View the list of jobs here: https://console.cloud.google.com/mlengine/jobs?project=mlip-team-mmndpm
+-   If a job fails, it often keeps running much longer on GCP. You can manually stop it in the above link. 
