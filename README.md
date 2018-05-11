@@ -1,37 +1,15 @@
 # Machine Learning In Practice
 
-# Prerequisites
-
-- Install at least Python 3 if you do not have already.
-
-- Install virtualenv if you do not have already. Installing with 'pip' is an example option here.
-  ```bash
-  $ pip install virtualenv
-  ```
-
-# Setup
-
--   Create a python3 virtual environment;
-
-  ```bash
-  $ virtualenv -p python3 .env
-  ```
-
--  Install the required Python Packages;
-
-  ```bash
-    $ pip install -r requirements.txt
-  ```
-
 # How to Run
 
-1. Navigate to the project folder for the first project DigitRecognizer
+-   Download ```model``` directory (e.g. to ```C:/python/mip/model/```). Edit ```train.py``` to change the model.
 
-2. Activate the environment if it's not already.
-  ```bash
-    $ source .env/bin/activate
+-   Install Google Cloud SDK (https://cloud.google.com/sdk/docs/)
+
+-   Change ```job_name``` and run the following command in the command prompt:
+
+   ```
+   gcloud ml-engine jobs submit training job_name --stream-logs --runtime-version 1.4 --job-dir gs://mmndpm-europe-west --package-path C:/python/mip/model/trainer --module-name trainer.train --region europe-west1 --config C:/python/mip/model/trainer/config.yaml -- --train-file gs://mmndpm-europe-west/
   ```
-------------------------
-# Suggestions
-
-  Please report your suggestions here
+  
+-   View the list of jobs here: https://console.cloud.google.com/mlengine/jobs?project=mlip-team-mmndpm
