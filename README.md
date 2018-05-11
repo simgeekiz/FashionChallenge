@@ -1,6 +1,6 @@
 # Machine Learning In Practice
 
-# How to Run
+## How to Run
 
 -   Download ```model``` directory (e.g. to ```C:/python/mip/model/```). Edit ```train.py``` to change the model.
 
