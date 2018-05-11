@@ -15,15 +15,18 @@ from tensorflow.python.lib.io import file_io
 
 def load_data(path):
 
-    # Retrieve images
+    # Load images
     
-    # Load labels
-    with gzip.open(path + 'data/y_train.pickle','rb') as fp:
-        y_train = cPickle.load(fp)
-        
-    with gzip.open(path + 'data/y_validation.pickle','rb') as fp:
-        y_validation = cPickle.load(fp)
-        
+    # Load and decompress training labels
+    with file_io.FileIO(path + 'data/y_train.pickle', mode='rb') as fp:
+        data = gzip.GzipFile(fileobj=fp)
+        y_train = cPickle.load(data)
+    
+    # Load and decompress validation labels
+    with file_io.FileIO(path + 'data/y_validation.pickle', mode='rb') as fp:
+        data = gzip.GzipFile(fileobj=fp)
+        y_validation = cPickle.load(data)
+    
     return y_train, y_validation
 
 def preprocessing():
@@ -43,8 +46,8 @@ def create_model():
 
 def main(train_file, test_file, job_dir):
     y_train, y_validation = load_data(train_file)
-
-    print(y_train.shape)
+    
+    print(y_train.shape,y_validation.shape)
 
 if __name__ == '__main__':
     """

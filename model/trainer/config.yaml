@@ -3,4 +3,3 @@ trainingInput:
   masterType: standard_gpu
   workerType: standard_gpu
   parameterServerType: standard_gpu
-  region: "europe-west1"
