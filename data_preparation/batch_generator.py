@@ -7,24 +7,66 @@ For validation, use the BatchSequence.
 from os import listdir
 from os.path import join
 
+from math import ceil, floor
 import numpy as np
 
 from keras.utils import Sequence
 from PIL import Image
 
-def image_to_ndarray(path):
+IMAGE_WIDTH = 600
+IMAGE_HEIGHT = 600
+
+def image_to_ndarray(path, pad=True):
     """
     Load a .jpg image.
     
     Arguments:
         path {string} -- file location.
-
+    
+    Keyword Arguments:
+        pad {bool} -- True if the image should be padded (default: {True})
+    
     Returns:
         ndarray -- image in numpy array.
     """
+
     img = Image.open(path)
     img.load()
-    return np.asarray(img, dtype='int32')
+    if pad:
+        return pad_image(np.asarray(img, dtype='int32'))
+    else:
+        return np.asarray(img, dtype='int32')
+
+def pad_image(img, target_width=IMAGE_WIDTH, target_height=IMAGE_HEIGHT, mode='constant', constant_values=255):
+    """
+    Padding a numpy image in 3D. The padding is done along x- and y-axis.
+    The third channel will never be padded as it is suppossed to contain the RGB-values.
+    
+    Arguments:
+        img {ndarray} -- an image in numpy array format.
+    
+    Keyword Arguments:
+        target_width {int} -- the desired width of the returned image (default: {IMAGE_WIDTH})
+        target_height {int} -- the desired height of the returned image (default: {IMAGE_HEIGHT})
+        mode {str} -- whichever mode is preferred; see https://docs.scipy.org/doc/numpy-1.14.0/reference/generated/numpy.pad.html (default: {'constant'})
+        constant_values {int} -- if mode is constant this depicts the value of the padded pixels (default: {255}) white.
+    
+    Returns:
+        ndarray -- padded image in the prescribed format.
+    """
+
+    img_width = img.shape[0]
+    img_height = img.shape[1]
+    
+    # Calculate how many padding is needed on the axis.
+    h_padding = target_width - img_width
+    v_padding = target_height - img_height
+    
+    return np.pad(img, (
+        (ceil(h_padding/2), floor(h_padding/2)), # x-axis
+        (ceil(v_padding/2), floor(v_padding/2)), # y-axis
+        (0,0) # nothing as this is the color channel
+    ), mode=mode, constant_values=constant_values)
 
 class BatchGenerator(object):
     """
