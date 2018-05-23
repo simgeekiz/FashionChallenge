@@ -11,12 +11,14 @@ from math import ceil, floor
 import numpy as np
 
 from keras.utils import Sequence
+from keras.preprocessing import image
+
 from PIL import Image
 
-IMAGE_WIDTH = 600
-IMAGE_HEIGHT = 600
+# standard input of exception
+DESIRED_IMAGE_SIZE = 290
 
-def image_to_ndarray(path, pad=True):
+def image_to_ndarray(path, set_format=True):
     """
     Load a .jpg image.
     
@@ -24,7 +26,7 @@ def image_to_ndarray(path, pad=True):
         path {string} -- file location.
     
     Keyword Arguments:
-        pad {bool} -- True if the image should be padded (default: {True})
+        pad {set_format} -- True if the image should be edited to have a certain size (default: {True})
     
     Returns:
         ndarray -- image in numpy array.
@@ -32,41 +34,40 @@ def image_to_ndarray(path, pad=True):
 
     img = Image.open(path)
     img.load()
-    if pad:
-        return pad_image(np.asarray(img, dtype='int32'))
+    if set_format:
+        return np.asarray(get_right_format(img), dtype='int32')
     else:
         return np.asarray(img, dtype='int32')
 
-def pad_image(img, target_width=IMAGE_WIDTH, target_height=IMAGE_HEIGHT, mode='constant', constant_values=255):
+def get_right_format(img, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)):
     """
-    Padding a numpy image in 3D. The padding is done along x- and y-axis.
-    The third channel will never be padded as it is suppossed to contain the RGB-values.
-    
+    Getting the image in the correct format.
+    This is done by either downsampling pictures that are too big, or by padding images that are too small.
+
     Arguments:
-        img {ndarray} -- an image in numpy array format.
-    
+        img {obj} -- an image in image format still.
+
     Keyword Arguments:
-        target_width {int} -- the desired width of the returned image (default: {IMAGE_WIDTH})
-        target_height {int} -- the desired height of the returned image (default: {IMAGE_HEIGHT})
-        mode {str} -- whichever mode is preferred; see https://docs.scipy.org/doc/numpy-1.14.0/reference/generated/numpy.pad.html (default: {'constant'})
-        constant_values {int} -- if mode is constant this depicts the value of the padded pixels (default: {255}) white.
-    
+        desired_size {int} -- the returned image needs to be a square, this denotes the number of pixels on each side. (default: {DESIRED_IMAGE_SIZE})
+        color {(int, int, int)} -- the desired RGB values for padding.
+
     Returns:
-        ndarray -- padded image in the prescribed format.
+        [obj] -- image in the desired size.
     """
 
-    img_width = img.shape[0]
-    img_height = img.shape[1]
-    
-    # Calculate how many padding is needed on the axis.
-    h_padding = target_width - img_width
-    v_padding = target_height - img_height
-    
-    return np.pad(img, (
-        (ceil(h_padding/2), floor(h_padding/2)), # x-axis
-        (ceil(v_padding/2), floor(v_padding/2)), # y-axis
-        (0,0) # nothing as this is the color channel
-    ), mode=mode, constant_values=constant_values)
+    old_size = img.size
+
+    # create new image in desired size, totally white
+    ratio = float(desired_size)/max(old_size)
+    new_size = tuple([int(x*ratio) for x in old_size])
+    im = img.resize(new_size, Image.ANTIALIAS)
+    right_format = Image.new("RGB", (desired_size, desired_size), color=color)
+    # paste the old image on top of the 'empty' picture created
+    right_format.paste(im,
+        ((desired_size-new_size[0])//2,
+        (desired_size-new_size[1])//2))
+
+    return right_format
 
 class BatchGenerator(object):
     """
