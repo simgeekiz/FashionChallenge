@@ -88,7 +88,8 @@ class BatchGenerator(object):
             augmentation_fn {function} -- augmentor function for the data (default: {None})
         """
         self.input_dir = input_dir
-        self.x = listdir(input_dir)
+        self.x = ['{}.jpg'.format(i+1) for i in range(y.shape[0])]
+        #self.x = listdir(input_dir)
         self.y = y
         self.batch_size = batch_size  # number of patches per batch
         self.augmentation_fn = augmentation_fn  # augmentation function
@@ -157,7 +158,8 @@ class BatchSequence(Sequence):
         """
 
         self.input_dir = input_dir
-        self.x = listdir(input_dir)  # path to patches in glob format
+        self.x = ['{}.jpg'.format(i+1) for i in range(y.shape[0])]
+        #self.x = listdir(input_dir)  # path to patches in glob format
         self.y = y
         self.batch_size = batch_size  # number of patches per batch
 
