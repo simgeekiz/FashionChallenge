@@ -47,6 +47,14 @@ def create_model():
 def main(train_file, test_file, job_dir):
     y_train, y_validation = load_data(train_file)
     
+    # Save model weights
+    model.save('model.h5')
+
+    # Save model on google storage
+    with file_io.FileIO('model.h5', mode='r') as input_f:
+        with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
+            output_f.write(input_f.read())
+    
     print(y_train.shape,y_validation.shape)
 
 if __name__ == '__main__':
