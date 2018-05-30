@@ -36,10 +36,7 @@ def image_to_ndarray(path, desired_size=DESIRED_IMAGE_SIZE):
 
     img = Image.open(path)
     img.load()
-    if img.size[0] != desired_size or img.size[1] != desired_size:
-        return np.asarray(get_right_format(img, desired_size=desired_size), dtype='int32')
-    else:
-        return np.asarray(img, dtype='int32')
+    return np.asarray(get_right_format(img, desired_size=desired_size), dtype='int32')
 
 def get_right_format(img, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)):
     """
