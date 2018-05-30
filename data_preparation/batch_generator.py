@@ -10,6 +10,8 @@ from os.path import join
 from math import ceil, floor
 import numpy as np
 
+import sklearn
+
 from keras.utils import Sequence
 from keras.preprocessing import image
 
@@ -18,7 +20,7 @@ from PIL import Image
 # standard input of exception
 DESIRED_IMAGE_SIZE = 290
 
-def image_to_ndarray(path, set_format=True):
+def image_to_ndarray(path, desired_size=DESIRED_IMAGE_SIZE):
     """
     Load a .jpg image.
     
@@ -26,7 +28,7 @@ def image_to_ndarray(path, set_format=True):
         path {string} -- file location.
     
     Keyword Arguments:
-        pad {set_format} -- True if the image should be edited to have a certain size (default: {True})
+        desired_size {int} -- the returned image needs to be a square, this denotes the number of pixels on each side. (default: {DESIRED_IMAGE_SIZE})
     
     Returns:
         ndarray -- image in numpy array.
@@ -34,8 +36,8 @@ def image_to_ndarray(path, set_format=True):
 
     img = Image.open(path)
     img.load()
-    if set_format:
-        return np.asarray(get_right_format(img), dtype='int32')
+    if img.size[0] != desired_size or img.size[1] != desired_size:
+        return np.asarray(get_right_format(img, desired_size=desired_size), dtype='int32')
     else:
         return np.asarray(img, dtype='int32')
 
@@ -74,8 +76,7 @@ class BatchGenerator(object):
     This class generates batches that can be provided to a neural network.
     It can be used for training only. For validation use the BatchSequence class.
     """
-
-    def __init__(self, input_dir, y, batch_size, augmentation_fn=None):
+    def __init__(self, input_dir, y, batch_size, shuffle=True, random=False, img_size=DESIRED_IMAGE_SIZE, augmentation_fn=None):
         """
         Constructor of the BatchGenerator.
         
@@ -85,14 +86,24 @@ class BatchGenerator(object):
             batch_size {int} -- expected size of the generated batches.
 
         Keyword Arguments:
+            shuffle {boolean} -- if the dataset should be shuffled (default: {True})
+            random {boolean} -- if the batches should pick random images from the dataset, or in a fixed order (default: {False})
+            img_size {int} -- the returned image needs to be a square, this denotes the number of pixels on each side. (default: {DESIRED_IMAGE_SIZE})
             augmentation_fn {function} -- augmentor function for the data (default: {None})
         """
         self.input_dir = input_dir
-        self.x = ['{}.jpg'.format(i+1) for i in range(y.shape[0])]
-        #self.x = listdir(input_dir)
-        self.y = y
+        self.random = random
+        self.desired_size = img_size
         self.batch_size = batch_size  # number of patches per batch
         self.augmentation_fn = augmentation_fn  # augmentation function
+        self.idx = 0 # to know what part of the data set to return in next()
+        
+        data = ['{}.jpg'.format(i+1) for i in range(y.shape[0])]
+        labels = y
+        if shuffle:
+            data, labels = sklearn.utils.shuffle(data, labels)
+        self.x = data
+        self.y = labels
 
     def __iter__(self):
         """
@@ -128,14 +139,22 @@ class BatchGenerator(object):
         Returns:
             (ndarray, ndarray) -- a batch with training samples and a batch with the corresponding labels.
         """
-        # pick random values from the training set
-        idxs = np.random.randint(0, len(self.x), self.batch_size)
+        if self.random:
+            # pick random values from the training set
+            idxs = np.random.randint(0, len(self.x), self.batch_size)
+        else:
+            # create indices
+            idx_min = self.idx * self.batch_size
+            # make sure to never go out of bounds
+            idx_max = np.min([idx_min + self.batch_size, len(self.x)])
+            idxs = np.arange(idx_min, idx_max)
+            self.idx += 1
 
         batch_x = [self.x[i] for i in idxs]
         batch_y = [self.y[i] for i in idxs]
 
         return np.array([
-            image_to_ndarray(join(self.input_dir, x))
+            image_to_ndarray(join(self.input_dir, x), desired_size=self.desired_size)
                 for x in batch_x]), np.array(batch_y)
 
 class BatchSequence(Sequence):
@@ -147,7 +166,7 @@ class BatchSequence(Sequence):
         Sequence {class} -- a sequence never repeats items.
     """
 
-    def __init__(self, input_dir, y, batch_size):
+    def __init__(self, input_dir, y, batch_size, desired_size=DESIRED_IMAGE_SIZE):
         """
         Constructor of the BatchSequence.
 
@@ -155,11 +174,13 @@ class BatchSequence(Sequence):
             input_dir {string} -- directory in which the images are stored.
             y {[rows=indices, cols=labels]} -- labels corresponding to the images in input_dir, in multilabel notation.
             batch_size {int} -- expected size of the generated batches.
+        
+        Keyword arguments:
+            desired_size {int} -- the returned image needs to be a square, this denotes the number of pixels on each side. (default: {DESIRED_IMAGE_SIZE})
         """
-
         self.input_dir = input_dir
+        self.desired_size = desired_size
         self.x = ['{}.jpg'.format(i+1) for i in range(y.shape[0])]
-        #self.x = listdir(input_dir)  # path to patches in glob format
         self.y = y
         self.batch_size = batch_size  # number of patches per batch
 
@@ -182,7 +203,6 @@ class BatchSequence(Sequence):
         Returns:
             (ndarray, ndarray) -- a batch with validation samples and a batch with the corresponding labels.
         """
-
         # create indices
         idx_min = idx * self.batch_size
         # make sure to never go out of bounds
@@ -193,5 +213,5 @@ class BatchSequence(Sequence):
         batch_y = [self.y[i] for i in idxs]
         
         return np.array([
-            image_to_ndarray(join(self.input_dir, x))
+            image_to_ndarray(join(self.input_dir, x), desired_size=self.desired_size)
                 for x in batch_x]), np.array(batch_y)
