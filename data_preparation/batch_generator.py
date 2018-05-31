@@ -140,6 +140,10 @@ class BatchGenerator(object):
             # pick random values from the training set
             idxs = np.random.randint(0, len(self.x), self.batch_size)
         else:
+            # check if end is reached
+            if self.idx * self.batch_size >= len(self.x):
+                self.x, self.y = sklearn.utils.shuffle(self.x, self.y)
+                self.idx = 0
             # create indices
             idx_min = self.idx * self.batch_size
             # make sure to never go out of bounds
