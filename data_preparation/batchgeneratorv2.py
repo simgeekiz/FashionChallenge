@@ -58,7 +58,7 @@ def get_right_format(img, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)
         [obj] -- image in the desired size.
     """
 
-    old_size = img.size
+    old_size = img.shape
 
     # create new image in desired size, totally white
     ratio = float(desired_size)/max(old_size)
