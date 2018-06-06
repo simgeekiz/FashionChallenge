@@ -14,9 +14,10 @@ import sklearn
 
 from keras.utils import Sequence
 from keras.preprocessing import image
+import tensorflow as tf
 
-from PIL import Image
-
+#from PIL import Image
+#from google.appengine.api import images
 
 # standard input of exception
 DESIRED_IMAGE_SIZE = 290
@@ -36,13 +37,13 @@ def image_to_ndarray(path, session, desired_size=DESIRED_IMAGE_SIZE):
     """
 	#session = tf.Session()
 	
-	file = tf.read_file(path)
+    file = tf.read_file(path)
     img = tf.image.decode_image(file)
-    img = session.run(img)
+    
 	
-    return np.asarray(get_right_format(img, desired_size=desired_size), dtype='int32')
+    return get_right_format(img, session, desired_size=desired_size)
 
-def get_right_format(img, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)):
+def get_right_format(img, session, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)):
     """
     Getting the image in the correct format.
     This is done by either downsampling pictures that are too big, or by padding images that are too small.
@@ -57,27 +58,27 @@ def get_right_format(img, desired_size=DESIRED_IMAGE_SIZE, color=(255, 255, 255)
     Returns:
         [obj] -- image in the desired size.
     """
-
-    old_size = img.shape
+    
+    imgrun = session.run(tfimg)
+    old_size = imgrun.shape[0:-1]
 
     # create new image in desired size, totally white
     ratio = float(desired_size)/max(old_size)
     new_size = tuple([int(x*ratio) for x in old_size])
-    im = img.resize(new_size, Image.ANTIALIAS)
-    right_format = Image.new("RGB", (desired_size, desired_size), color=color)
-    # paste the old image on top of the 'empty' picture created
-    right_format.paste(im,
-        ((desired_size-new_size[0])//2,
-        (desired_size-new_size[1])//2))
+    
+    im = tf.image.resize_images(imgrun, new_size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    right_format = tf.image.resize_image_with_crop_or_pad(im, desired_size, desired_size)
+    x = session.run(right_format)
+	
 
-    return right_format
+    return x
 
 class BatchGenerator(object):
     """
     This class generates batches that can be provided to a neural network.
     It can be used for training only. For validation use the BatchSequence class.
     """
-    def __init__(self, input_dir, y, batch_size, shuffle=True, random=False, img_size=DESIRED_IMAGE_SIZE, augmentation_fn=None):
+    def __init__(self, input_dir, y, batch_size, session, shuffle=True, random=False, img_size=DESIRED_IMAGE_SIZE, augmentation_fn=None):
         """
         Constructor of the BatchGenerator.
         
@@ -93,7 +94,7 @@ class BatchGenerator(object):
             augmentation_fn {function} -- augmentor function for the data (default: {None})
         """
         self.input_dir = input_dir
-		self.session = tf.Session()
+        self.session = session #tf.Session()
         self.random = random
         self.desired_size = img_size
         self.batch_size = batch_size  # number of patches per batch
