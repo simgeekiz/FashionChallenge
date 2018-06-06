@@ -1,3 +1,5 @@
+# these have to be defined in a notebook
+
 class Metrics(Callback):
     def on_train_begin(self, logs={}):
         self.mean_f1s = []
@@ -46,14 +48,14 @@ def all_call_backs():
     a = keras.callbacks.ReduceLROnPlateau(
         monitor='val_loss',
         factor=0.15,
-        patience=5,
+        patience=3,
         min_lr=0.0001
     )
 
     b = keras.callbacks.EarlyStopping(
         monitor='val_loss',
         min_delta=0,
-        patience=5,
+        patience=8,
         verbose=0,
         mode='auto'
     )
