@@ -7,7 +7,10 @@ __pycache__/
 
 # Mac OS
 .DS_Store
+.ipynb_checkpoints
+*.h5
 
+progressDataPadding
 *ropeproject/
 
 # virtualenv folder

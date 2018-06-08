@@ -5,8 +5,9 @@
 - SSH into VM: ```gcloud compute --project "mlip-team-mmndpm" ssh --zone "europe-west1-b" "fashion"```
 
 - ```sudo bash``` to get root
-- ```jupyter-notebook --no-browser --port=5000``` to run jupyter notebook
+- ```jupyter-notebook --no-browser --port=5000 --allow-root``` to run jupyter notebook
 - Navigate to http://35.195.202.233:5000 (password: fashion)
+- Start VM before use and stop VM after use (https://console.cloud.google.com/compute/instances?project=mlip-team-mmndpm)
   
 
 ## How to Run
