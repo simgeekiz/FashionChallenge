@@ -70,6 +70,7 @@ def all_call_backs():
         period=1
     )
 
-    callbacks_list = [a, b, c]
-    callbacks_list = callbacks_list + [PlotLosses()]
-    callbacks_list = callbacks_list + [Metrics()]
+    # callbacks_list = [a, b, c]
+    # callbacks_list = callbacks_list + [PlotLosses()]
+    # callbacks_list = callbacks_list + [Metrics()]
+    return callbacks_list[a, b, c, Metrics()]
