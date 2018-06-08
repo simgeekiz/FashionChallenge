@@ -1,5 +1,14 @@
 # Machine Learning In Practice
 
+## How to Run 2: VM
+
+- SSH into VM: ```gcloud compute --project "mlip-team-mmndpm" ssh --zone "europe-west1-b" "fashion"```
+
+- ```sudo bash``` to get root
+- ```jupyter-notebook --no-browser --port=5000``` to run jupyter notebook
+- Navigate to http://35.195.202.233:5000 (password: fashion)
+  
+
 ## How to Run
 
 -   Download ```model``` directory from github (e.g. to ```C:/python/mip/model/```). Edit ```train.py``` to change the model.
