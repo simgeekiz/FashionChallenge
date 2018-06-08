@@ -116,6 +116,7 @@ def main(train_file, test_file, job_dir, n_epochs):
 		# Need to still define keras.utils.Sequence to use fit_generator
 		model.fit_generator(
 			generator=training_gen,
+			callbacks=callbacks,
 			steps_per_epoch=int(len(y_train)/batch_size),
 			epochs=epochs,
 			validation_data=validation_gen,
