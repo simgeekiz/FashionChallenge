@@ -15,7 +15,7 @@ import os
 from tensorflow.python.lib.io import file_io
 from keras.models import Model
 from keras.layers import GlobalAveragePooling2D, Dense, Dropout
-from keras.applications import xception, VGG16, VGG19, ResNet50, InceptionV3
+from keras.applications import Xception, VGG16, VGG19, ResNet50, InceptionV3
 
 from data_preparation.batchgenerator import BatchGenerator, BatchSequence
 from exception_callbacks.callbacks import all_call_backs 
@@ -56,6 +56,31 @@ def fine_tune_model(base_model):
 
 	return model
 
+def get_models():
+	"""Get all five pretrained models."""
+	models = []
+	
+	xception_base = Xception(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	xception = fine_tune_model(xception_base)
+	models.append(xception)
+	
+	vgg16_base = VGG16(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	vgg16 = fine_tune_model(vgg16_base)
+	models.append(vgg16)
+
+	vgg19_base = VGG19(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	vgg19 = fine_tune_model(vgg19_base)
+	models.append(vgg19)
+
+	resnet_base = ResNet50(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	resnet = fine_tune_model(resnet_base)
+	models.append(resnet)
+
+	inception_base = InceptionV3(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	inception = fine_tune_model(inception_base)
+	models.append(inception)
+
+	return models
 
 def main(train_file, test_file, job_dir, n_epochs):
 	y_train, y_validation = load_data(train_file)
@@ -84,22 +109,15 @@ def main(train_file, test_file, job_dir, n_epochs):
 	)
 
 	# Initialize some pretrained keras model, add more models if want to stack/ensemble them
-	models = []
-	
-	vgg_base = VGG16(weights='imagenet', include_top=False, input_shape=(290,290,3))
-	vgg = fine_tune_model(vgg_base)
-	models.append(vgg)
-	
-	xception_base = Xception(weights='imagenet', include_top=False, input_shape=(290,290,3))
-	xception = fine_tune_model(xception_base)
-	models.append(xception)
+	models = get_models()
 	
 	# Train all models
 	for model in models:
 		# Need to still define keras.utils.Sequence to use fit_generator
 		model.fit_generator(
 			generator=training_gen,
-			steps_per_epoch=int(len(y_train)/batch_size)
+			callbacks=callbacks,
+			steps_per_epoch=int(len(y_train)/batch_size),
 			epochs=epochs,
 			validation_data=validation_gen,
 			validation_steps=int(len(y_validation)/batch_size)
