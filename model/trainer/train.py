@@ -15,16 +15,12 @@ import os
 from tensorflow.python.lib.io import file_io
 from keras.models import Model
 from keras.layers import GlobalAveragePooling2D, Dense, Dropout
-from keras.applications import VGG16, xception
+from keras.applications import xception, VGG16, VGG19, ResNet50, InceptionV3
 
-try:
-	from batchgenerator import BatchGenerator, BatchSequence
-except:
-	from .batchgenerator import BatchGenerator, BatchSequence
-
+from data_preparation.batchgenerator import BatchGenerator, BatchSequence
+from exception_callbacks.callbacks import all_call_backs 
 
 def load_data(path):
-
 	# Load and decompress training labels
 	with file_io.FileIO(path + 'data/y_train.pickle', mode='rb') as fp:
 		data = gzip.GzipFile(fileobj=fp)
@@ -35,8 +31,7 @@ def load_data(path):
 		data = gzip.GzipFile(fileobj=fp)
 		y_validation = cPickle.load(data)
 	
-	return y_train, y_validation
-	
+	return y_train, y_validation	
 
 def preprocessing(dir):
 	return None
@@ -64,15 +59,27 @@ def fine_tune_model(base_model):
 
 def main(train_file, test_file, job_dir, n_epochs):
 	y_train, y_validation = load_data(train_file)
+
 	images_path_train = os.path.join(train_file, 'data/train/')
+	images_path_validation = os.path.join(train_file, 'data/validation/')
 	
+	epochs = 30
+	callbacks = all_call_backs()
+	batch_size = 128
+
 	training_gen = BatchGenerator(
 		input_dir=images_path_train,
 		y=y_train,
-		epochs=int(n_epochs),
-		batch_size=32,
-		session = tf.Session(),
-		shuffle=False,
+		batch_size=batch_size,
+		shuffle=True,
+		img_size=290
+	)
+
+	validation_gen = BatchSequence(
+		input_dir=images_path_validation,
+		y=y_validation,
+		batch_size=batch_size,
+		shuffle=True,
 		img_size=290
 	)
 
@@ -83,26 +90,20 @@ def main(train_file, test_file, job_dir, n_epochs):
 	vgg = fine_tune_model(vgg_base)
 	models.append(vgg)
 	
-	# xception_base = Xception(weights='imagenet', include_top=False, input_shape=(290,290,3))
-	# xception = fine_tune_model(xception_base)
-	# models.append(xception)
+	xception_base = Xception(weights='imagenet', include_top=False, input_shape=(290,290,3))
+	xception = fine_tune_model(xception_base)
+	models.append(xception)
 	
 	# Train all models
 	for model in models:
 		# Need to still define keras.utils.Sequence to use fit_generator
-		#model.fit_generator(training_gen)
-		
-		for i in range(n_epochs):
-			for batch_x, batch_y in training_gen:
-				model.fit(batch_x, batch_y[:,1:])
-	
-	# Save model weights
-	model.save('model.h5')
-
-	# Save model on google storage
-	with file_io.FileIO('model.h5', mode='r') as input_f:
-		with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
-			output_f.write(input_f.read())
+		model.fit_generator(
+			generator=training_gen,
+			steps_per_epoch=int(len(y_train)/batch_size)
+			epochs=epochs,
+			validation_data=validation_gen,
+			validation_steps=int(len(y_validation)/batch_size)
+		)
 			
 	print("main success")
 

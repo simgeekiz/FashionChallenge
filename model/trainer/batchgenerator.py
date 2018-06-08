@@ -72,7 +72,7 @@ class BatchGenerator(object):
 	This class generates batches that can be provided to a neural network.
 	It can be used for training only. For validation use the BatchSequence class.
 	"""
-	def __init__(self, input_dir, y, epochs, batch_size, session, shuffle=True, random=False, img_size=DESIRED_IMAGE_SIZE, augmentation_fn=None):
+	def __init__(self, input_dir, y, batch_size, session, shuffle=True, random=False, img_size=DESIRED_IMAGE_SIZE, augmentation_fn=None):
 		"""
 		Constructor of the BatchGenerator.
 		
@@ -91,7 +91,6 @@ class BatchGenerator(object):
 		self.session = session #tf.Session()
 		self.random = random
 		self.desired_size = img_size
-		self.epochs = epochs
 		self.batch_size = batch_size  # number of patches per batch
 		self.augmentation_fn = augmentation_fn  # augmentation function
 		self.idx = 0 # to know what part of the data set to return in next()
