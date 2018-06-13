@@ -5,8 +5,8 @@
 - Start the VM: https://console.cloud.google.com/compute/instances?project=mlip-team-mmndpm
 - SSH into VM: ```gcloud compute --project "mlip-team-mmndpm" ssh --zone "europe-west1-b" "fashion"```
 - ```sudo bash``` to get root
-- ```export LD_LIBRARY_PATH=/usr/local/cuda/lib64```
-- ```export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64```
+- ```export LD_LIBRARY_PATH=/usr/local/cuda/lib64``` (else cudnn is not found)
+- ```export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64``` (else cudnn is not found)
 - ^ There is supposed to be a way in linux to save exports and not do this every time
 - ```cd /home/dljva/``` this is where the current files are stored (you need to run the notebook from here)
 - ```jupyter-notebook --no-browser --port=5000 --allow-root``` to run jupyter notebook
