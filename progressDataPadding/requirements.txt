@@ -3,7 +3,7 @@ bleach==2.1.3
 certifi==2018.4.16
 chardet==3.0.4
 decorator==4.3.0
-Django==2.0.5
+Django==2.2.24
 entrypoints==0.2.3
 html5lib==1.0.1
 idna==2.6
